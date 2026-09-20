@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Cụ Tài Chính Ăn Uống - FINSTART Food</title>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <h1>FINSTART Food</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Trang chủ</a></li>
+                <li><a href="products.html">Thực đơn</a></li>
+                <li><a href="calculator.html" class="active" aria-current="page">Tính ngân sách</a></li>
+                <li><a href="contact.html">Đặt hàng</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Bộ Công Cụ Tính Toán Chi Phí Ăn Uống</h2>
+
+        <!-- TÍNH NĂNG 1: TÍNH HẠN MỨC CÁ NHÂN (US01) -->
+        <section class="calc-section">
+            <h3>1. Tính Hạn Mức Tiền Ăn Cá Nhân (Ngăn Vỡ Quỹ)</h3>
+            <form id="personal-calc-form">
+                <fieldset>
+                    <legend>Thông Tin Quỹ Tiền Ăn</legend>
+
+                    <label for="total-budget">Tổng tiền ăn còn lại trong tháng (VNĐ):</label><br>
+                    <input type="number" id="total-budget" name="total_budget" placeholder="Ví dụ: 1500000" required><br><br>
+
+                    <label for="days-left">Số ngày sinh hoạt còn lại:</label><br>
+                    <input type="number" id="days-left" name="days_left" placeholder="Ví dụ: 15" min="1" max="31" required><br><br>
+
+                    <label for="meals-per-day">Số bữa ăn/ngày:</label><br>
+                    <select id="meals-per-day" name="meals_per_day">
+                        <option value="2">2 Bữa (Trưa + Tối)</option>
+                        <option value="3" selected>3 Bữa (Sáng + Trưa + Tối)</option>
+                    </select>
+                </fieldset>
+                <br>
+                <button type="button" id="btn-calc-personal">Tính Hạn Mức</button>
+                <button type="reset">Làm mới</button>
+            </form>
+
+            <div id="personal-result" class="result-box">
+                <h4>Kết Quả Tính Toán:</h4>
+                <p>Hạn mức đề xuất cho mỗi bữa ăn: <strong id="budget-per-meal">0 VNĐ</strong></p>
+                <p>Mức độ an toàn tài chính: <span id="budget-status">Chưa tính toán</span></p>
+                <a href="products.html" id="btn-go-suggest" style="display:none;">Xem Thực Đơn Gợi Ý Theo Hạn Mức Phù Hợp</a>
+            </div>
+        </section>
+
+        <hr>
+
+        <!-- TÍNH NĂNG 2: CÔNG CỤ CHIA TIỀN SHIP NHÓM (US06) -->
+        <section class="calc-section">
+            <h3>2. Công Cụ Gom Đơn Chia Tiền Ship Nhóm (Split Bill)</h3>
+            <form id="group-ship-form">
+                <fieldset>
+                    <legend>Thông Tin Bill Nhóm</legend>
+
+                    <label for="group-food-cost">Tổng tiền các món lẻ (VNĐ):</label><br>
+                    <input type="number" id="group-food-cost" name="group_food_cost" placeholder="Ví dụ: 120000" required><br><br>
+
+                    <label for="ship-fee">Tổng phí giao hàng (Ship) (VNĐ):</label><br>
+                    <input type="number" id="ship-fee" name="ship_fee" placeholder="Ví dụ: 25000" required><br><br>
+
+                    <label for="discount-code">Voucher giảm giá (VNĐ):</label><br>
+                    <input type="number" id="discount-code" name="discount_code" placeholder="Ví dụ: 10000" value="0"><br><br>
+
+                    <label for="people-count">Số người tham gia đặt chung:</label><br>
+                    <input type="number" id="people-count" name="people_count" min="2" max="10" placeholder="Ví dụ: 3" required>
+                </fieldset>
+                <br>
+                <button type="button" id="btn-calc-group">Tính Chia Tiền</button>
+            </form>
+
+            <div id="group-result" class="result-box">
+                <h4>Kết Quả Bảng Chia Tiền:</h4>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th scope="col">Hạng mục</th>
+                            <th scope="col">Số tiền tổng</th>
+                            <th scope="col">Trung bình / Người</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Phí ship thực tế (đã trừ voucher)</td>
+                            <td id="total-ship-final">0 VNĐ</td>
+                            <td id="ship-per-person">0 VNĐ</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tổng số tiền mỗi người cần trả</strong></td>
+                            <td id="total-bill-final">0 VNĐ</td>
+                            <td><strong id="final-per-person">0 VNĐ</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 FINSTART Food. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

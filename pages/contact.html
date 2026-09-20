@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt Hàng & Thanh Toán - FINSTART Food</title>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <h1>FINSTART Food</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Trang chủ</a></li>
+                <li><a href="products.html">Thực đơn</a></li>
+                <li><a href="calculator.html">Tính ngân sách</a></li>
+                <li><a href="contact.html" class="active" aria-current="page">Đặt hàng</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Biểu Mẫu Đặt Món & Thanh Toán</h2>
+
+        <!-- Khối Cảnh Báo Vượt Quỹ Ăn (US05) -->
+        <section id="budget-warning-alert" style="display:none; color: red;">
+            <p>⚠️ <strong>CẢNH BÁO TÀI CHÍNH:</strong> Đơn hàng này vượt quá hạn mức bữa ăn đã đề ra của bạn! Bạn có chắc chắn muốn tiếp tục?</p>
+        </section>
+
+        <!-- Form Đặt Hàng (US04, US05, US07) -->
+        <section class="form-container">
+            <form action="#" method="POST" id="order-form">
+                
+                <fieldset>
+                    <legend>Thông Tin Khách Hàng</legend>
+                    
+                    <label for="fullname">Họ và tên người nhận (*):</label><br>
+                    <input type="text" id="fullname" name="fullname" placeholder="Nguyễn Văn A" required>
+                    <span class="error-message" id="err-fullname"></span><br><br>
+
+                    <label for="phone">Số điện thoại (*):</label><br>
+                    <input type="tel" id="phone" name="phone" placeholder="0912345678" required>
+                    <span class="error-message" id="err-phone"></span><br><br>
+
+                    <label for="email">Email sinh viên (*):</label><br>
+                    <input type="email" id="email" name="email" placeholder="sv@bav.edu.vn" required>
+                    <span class="error-message" id="err-email"></span><br><br>
+
+                    <label for="address">Địa chỉ giao (Phòng KTX / Tòa nhà) (*):</label><br>
+                    <input type="text" id="address" name="address" placeholder="Phòng 302 KTX Học viện Ngân hàng" required>
+                    <span class="error-message" id="err-address"></span>
+                </fieldset>
+
+                <br>
+
+                <fieldset>
+                    <legend>Phương Thức Thanh Toán (US07)</legend>
+                    
+                    <input type="radio" id="pay-cod" name="payment_method" value="cod" checked>
+                    <label for="pay-cod">Tiền mặt khi nhận hàng (COD)</label><br>
+
+                    <input type="radio" id="pay-qr" name="payment_method" value="vietqr">
+                    <label for="pay-qr">Chuyển khoản Ngân hàng (VietQR - Tự động bật QR)</label><br>
+
+                    <input type="radio" id="pay-momo" name="payment_method" value="momo">
+                    <label for="pay-momo">Ví điện tử MoMo</label><br><br>
+
+                    <label for="notes">Ghi chú cho quán & shipper:</label><br>
+                    <textarea id="notes" name="notes" rows="3" cols="40" placeholder="Ví dụ: Cho ít cay, gọi trước khi đến 5 phút..."></textarea>
+                </fieldset>
+
+                <br>
+
+                <button type="submit" id="btn-submit-order">Xác Nhận Đặt Hàng</button>
+            </form>
+        </section>
+
+        <!-- Khung Modal Mô Phỏng Hiện Mã QR Thanh Toán Online (US07) -->
+        <section id="qr-modal" class="modal-box" style="display:none;">
+            <div class="modal-content">
+                <h3>Quét Mã QR Để Thanh Toán</h3>
+                <p>Vui lòng dùng App Ngân hàng hoặc MoMo quét mã dưới đây:</p>
+                <img src="../assets/images/qr-code-demo.jpg" alt="Mã QR chuyển khoản mô phỏng" width="200" height="200">
+                <p>Tổng tiền: <strong id="modal-total-amount">0 VNĐ</strong></p>
+                <button type="button" id="btn-close-qr">Đã hoàn tất chuyển khoản</button>
+            </div>
+        </section>
+
+        <!-- Khối Tiến Trình Trạng Thái Đơn Hàng Realtime (US08) -->
+        <section class="order-status-section" id="order-status-block" style="display:none;">
+            <h3>Trạng Thái Đơn Hàng Của Bạn (#ORD-2026-001)</h3>
+            <ol class="timeline-ui">
+                <li id="step1" class="step active">1. Đã tiếp nhận đơn hàng</li>
+                <li id="step2" class="step">2. Quán đang chế biến</li>
+                <li id="step3" class="step">3. Shipper đang giao tới KTX</li>
+                <li id="step4" class="step">4. Đã giao thành công</li>
+            </ol>
+            <p><strong>Hotline Shipper:</strong> 0988.777.666 (Tài xế Nguyễn Văn B)</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 FINSTART Food. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

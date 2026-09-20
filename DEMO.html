@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cơm Tấm Sinh Viên - Hệ Thống Đặt Món & Quản Lý Ngân Sách</title>
+
+    <!-- BOOTSTRAP 4 CSS & FONTAWESOME CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #d90429;
+            --secondary-color: #2b2d42;
+            --accent-color: #ffb703;
+            --bg-light: #f8f9fa;
+            --text-dark: #212529;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar-brand { font-weight: 700; color: var(--primary-color) !important; font-size: 1.5rem; }
+        .nav-link { cursor: pointer; font-weight: 600; }
+
+        .hero-banner {
+            background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), 
+                        url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+            color: white;
+            padding: 70px 0;
+            border-radius: var(--border-radius);
+        }
+
+        .card-product {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            height: 100%;
+            position: relative;
+        }
+
+        .card-product:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .card-product img { border-top-left-radius: var(--border-radius); border-top-right-radius: var(--border-radius); height: 180px; object-fit: cover; }
+
+        .price-badge { background-color: var(--primary-color); color: white; font-weight: bold; padding: 4px 10px; border-radius: 20px; font-size: 0.9rem; }
+        .warning-tag { background-color: #dc3545; color: white; font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+        .success-tag { background-color: #28a745; color: white; font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+
+        /* Order Tracking Timeline (US08) */
+        .track-step { position: relative; padding-left: 45px; margin-bottom: 25px; }
+        .track-step::before { content: ''; position: absolute; left: 15px; top: 30px; bottom: -25px; width: 3px; background-color: #e9ecef; }
+        .track-step:last-child::before { display: none; }
+        .track-icon { position: absolute; left: 0; top: 0; width: 32px; height: 32px; border-radius: 50%; background-color: #e9ecef; color: #6c757d; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .track-step.active .track-icon { background-color: #28a745; color: white; }
+        .track-step.active .track-title { color: #28a745; font-weight: bold; }
+
+        #toast-notification { position: fixed; bottom: 20px; right: 20px; z-index: 9999; min-width: 280px; display: none; }
+        .error-message { color: var(--primary-color); font-size: 0.85rem; margin-top: 4px; display: none; }
+        .is-invalid + .error-message { display: block; }
+        .page-view { animation: fadeIn 0.35s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER & NAVIGATION -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+            <div class="container">
+                <a class="navbar-brand js-nav-link" data-target="#page-home" href="#"><i class="fas fa-utensils mr-2"></i>Cơm Tấm Sinh Viên</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav ml-auto align-items-lg-center">
+                        <li class="nav-item active"><a class="nav-link js-nav-link" data-target="#page-home">Trang chủ</a></li>
+                        <li class="nav-item"><a class="nav-link js-nav-link" data-target="#page-menu">Thực đơn</a></li>
+                        <li class="nav-item"><a class="nav-link js-nav-link" data-target="#page-calculator">Tính ngân sách (US01)</a></li>
+                        <li class="nav-item"><a class="nav-link js-nav-link" data-target="#page-tracking">Theo dõi đơn (US08)</a></li>
+                        <li class="nav-item ml-lg-2 mt-2 mt-lg-0">
+                            <button class="btn btn-outline-danger font-weight-bold js-nav-link" data-target="#page-cart">
+                                <i class="fas fa-shopping-cart mr-1"></i>Giỏ hàng
+                                <span class="badge badge-danger badge-pill" id="cart-count">0</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- THANH CẢNH BÁO NGÂN SÁCH TỔNG QUAN (US01 & US05) -->
+        <div class="bg-dark text-white py-2">
+            <div class="container d-flex justify-content-between align-items-center small">
+                <div>
+                    <i class="fas fa-wallet text-warning mr-1"></i> Quỹ ăn còn lại tháng này: 
+                    <strong id="global-monthly-budget" class="text-warning">3.000.000 VNĐ</strong>
+                </div>
+                <div>
+                    <i class="fas fa-bullseye text-info mr-1"></i> Hạn mức Bữa ăn khuyến nghị: 
+                    <strong id="global-meal-limit" class="text-info">50.000 VNĐ</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mt-2">
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 small mb-2">
+                    <li class="breadcrumb-item"><a href="#" class="js-nav-link" data-target="#page-home">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" id="breadcrumb-current">Trang chủ</li>
+                </ol>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" class="my-3 flex-grow-1">
+        <div class="container">
+
+            <!-- ================= TRANG 1: TRANG CHỦ ================= -->
+            <div id="page-home" class="page-view">
+                <section class="hero-banner text-center mb-4">
+                    <div class="container">
+                        <h1 class="display-4 font-weight-bold">Bữa Ăn Ngon - Chuẩn Ngân Sách</h1>
+                        <p class="lead">Tự động gợi ý thực đơn phù hợp túi tiền sinh viên - Không lo thiếu tiền cuối tháng!</p>
+                        <div class="mt-4">
+                            <button class="btn btn-warning btn-lg font-weight-bold text-dark mr-2 js-nav-link" data-target="#page-menu">
+                                <i class="fas fa-utensils mr-2"></i>Chọn Thực Đơn Hôm Nay
+                            </button>
+                            <button class="btn btn-outline-light btn-lg font-weight-bold js-nav-link" data-target="#page-calculator">
+                                <i class="fas fa-calculator mr-2"></i>Nhập Ngân Sách Tháng
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4">
+                    <h2 class="h3 font-weight-bold mb-3"><i class="fas fa-fire text-danger mr-2"></i>Món Bán Chạy Nhất</h2>
+                    <div class="row" id="featured-products"></div>
+                </section>
+            </div>
+
+            <!-- ================= TRANG 2: THỰC ĐƠN & GỢI Ý THÔNG MINH (US01 & US05) ================= -->
+            <div id="page-menu" class="page-view d-none">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <section class="mb-5">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h2 class="h3 font-weight-bold text-dark mb-0"><i class="fas fa-list-alt text-danger mr-2"></i>Danh Sách Món Ăn</h2>
+                            </div>
+
+                            <!-- Bộ Lọc Nâng Cao + US01 Nút Thực Đơn Hôm Nay -->
+                            <div class="card p-3 mb-4 bg-white shadow-sm">
+                                <div class="form-row align-items-center">
+                                    <div class="form-group col-md-4 mb-2">
+                                        <input type="text" id="search-input" class="form-control" placeholder="Tìm tên món ăn...">
+                                    </div>
+                                    <div class="form-group col-md-3 mb-2">
+                                        <select id="category-filter" class="form-control">
+                                            <option value="all">Tất cả danh mục</option>
+                                            <option value="com">Cơm Tấm</option>
+                                            <option value="bun-pho">Bún / Phở</option>
+                                            <option value="banh-mi">Bánh Mì / Khác</option>
+                                            <option value="nuoc">Nước Uống</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-5 mb-2 text-right">
+                                        <!-- US01: Bật Lọc Thực Đơn Hôm Nay theo Hạn Mức -->
+                                        <button id="btn-filter-today-menu" class="btn btn-outline-success font-weight-bold btn-block">
+                                            <i class="fas fa-magic mr-1"></i> Thực đơn hôm nay (<span id="btn-limit-text">≤ 50k</span>)
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="no-results" class="alert alert-warning text-center d-none">
+                                Không tìm thấy món ăn phù hợp với tiêu chí lọc!
+                            </div>
+
+                            <div class="row" id="product-list"></div>
+                        </section>
+                    </div>
+
+                    <aside class="col-lg-4 mb-4">
+                        <div class="card p-3 shadow-sm border-left-danger mb-4">
+                            <h3 class="h5 font-weight-bold text-danger"><i class="fas fa-shield-alt mr-2"></i>Cảnh Báo Thông Minh (US05)</h3>
+                            <p class="small text-muted mb-0">Hệ thống tự động gắn nhãn <span class="badge badge-danger">⚠️ Vượt hạn mức</span> cho các món có giá cao hơn hạn mức 1 bữa ăn của bạn để tránh chi tiêu cảm tính.</p>
+                        </div>
+                        <div class="card p-3 shadow-sm">
+                            <h3 class="h5 font-weight-bold mb-2"><i class="fas fa-users text-primary mr-2"></i>Gom Đơn Đặt Chung (US06)</h3>
+                            <p class="small text-muted mb-2">Đặt chung đồ ăn với bạn cùng phòng/KTX để chia đều phí ship 15.000đ vô cùng tiết kiệm!</p>
+                            <button class="btn btn-outline-primary btn-sm font-weight-bold js-nav-link" data-target="#page-cart">Đến Giỏ Hàng Gom Đơn</button>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+
+            <!-- ================= TRANG 3: GIỎ HÀNG & THANH TOÁN (US05, US06, US07) ================= -->
+            <div id="page-cart" class="page-view d-none">
+                <h2 class="h3 font-weight-bold mb-3"><i class="fas fa-shopping-cart text-danger mr-2"></i>Giỏ Hàng Của Bạn</h2>
+
+                <div id="empty-cart-msg" class="alert alert-info text-center d-none">
+                    Giỏ hàng của bạn đang trống! <a href="#" class="js-nav-link font-weight-bold" data-target="#page-menu">Bấm vào đây để chọn món</a>.
+                </div>
+
+                <div class="row" id="cart-content">
+                    <div class="col-lg-7 mb-4">
+                        <div class="card shadow-sm border-0 mb-4">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Món ăn</th>
+                                            <th>Đơn giá</th>
+                                            <th style="width: 120px;">Số lượng</th>
+                                            <th>Thành tiền</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cart-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- US06: CÔNG CỤ GOM ĐƠN ĐẶT CHUNG & CHIA TIỀN SHIP -->
+                        <div class="card p-3 shadow-sm border-primary">
+                            <h3 class="h5 font-weight-bold text-primary mb-2"><i class="fas fa-users mr-2"></i>US06: Gom Đơn Đặt Chung & Chia Tiền Ship</h3>
+                            <p class="small text-muted">Tự động chia đều phí giao hàng (15.000đ) và tổng bill cho cả nhóm.</p>
+                            
+                            <div class="form-row align-items-center">
+                                <div class="col-6 col-md-4 mb-2">
+                                    <label class="small font-weight-bold mb-1">Số người đặt chung:</label>
+                                    <input type="number" id="group-people-count" class="form-control" value="1" min="1" max="10">
+                                </div>
+                                <div class="col-6 col-md-4 mb-2">
+                                    <label class="small font-weight-bold mb-1">Phí Ship chia mỗi người:</label>
+                                    <div class="form-control bg-light font-weight-bold text-success" id="ship-per-person">15.000 đ</div>
+                                </div>
+                                <div class="col-12 col-md-4 mb-2">
+                                    <label class="small font-weight-bold mb-1">&nbsp;</label>
+                                    <button class="btn btn-outline-primary btn-block font-weight-bold" id="btn-share-link">
+                                        <i class="fas fa-link mr-1"></i> Copy Link Gom Đơn
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="alert alert-light border mb-0 small text-dark mt-2">
+                                💡 Mỗi người trong nhóm chỉ cần trả: <strong id="total-per-person" class="text-danger">0 VNĐ</strong> (Đã gồm ship chia đều).
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TÓM TẮT & FORM THANH TOÁN (US05 & US07) -->
+                    <div class="col-lg-5">
+                        <!-- US05: CẢNH BÁO CẢM TÍNH -->
+                        <div id="cart-budget-alert" class="alert alert-warning border-warning d-none">
+                            <i class="fas fa-exclamation-triangle mr-1"></i> <strong>Cảnh báo chi tiêu:</strong> Tổng đơn hàng này (<span id="alert-cart-total">0đ</span>) vượt quá hạn mức bữa ăn (<span id="alert-meal-limit">0đ</span>) của bạn!
+                        </div>
+
+                        <div class="card p-3 shadow-sm border-0 mb-4">
+                            <h3 class="h5 font-weight-bold mb-3">Tóm Tắt Đơn Hàng</h3>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tiền món ăn:</span>
+                                <strong id="cart-subtotal">0 VNĐ</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Phí giao hàng (Giao KTX):</span>
+                                <strong>15.000 VNĐ</strong>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="h6 font-weight-bold">Tổng thanh toán:</span>
+                                <strong class="h5 text-danger font-weight-bold" id="cart-total">0 VNĐ</strong>
+                            </div>
+
+                            <!-- US07: PHƯƠNG THỨC THANH TOÁN -->
+                            <h4 class="h6 font-weight-bold mb-2"><i class="fas fa-credit-card mr-1"></i>Phương thức thanh toán (US07):</h4>
+                            <div class="form-group mb-3">
+                                <div class="custom-control custom-radio mb-2">
+                                    <input type="radio" id="pay-cod" name="paymentMethod" class="custom-control-input" value="COD" checked>
+                                    <label class="custom-control-label" for="pay-cod"><i class="fas fa-money-bill-wave text-success mr-1"></i>Tiền mặt khi nhận hàng (COD)</label>
+                                </div>
+                                <div class="custom-control custom-radio mb-2">
+                                    <input type="radio" id="pay-vietqr" name="paymentMethod" class="custom-control-input" value="VietQR">
+                                    <label class="custom-control-label" for="pay-vietqr"><i class="fas fa-qrcode text-primary mr-1"></i>Chuyển khoản VietQR (Tự động xác nhận)</label>
+                                </div>
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="pay-momo" name="paymentMethod" class="custom-control-input" value="MoMo">
+                                    <label class="custom-control-label" for="pay-momo"><i class="fas fa-wallet text-danger mr-1"></i>Ví điện tử MoMo</label>
+                                </div>
+                            </div>
+
+                            <!-- KHU VỰC HIỂN THỊ QR CODE DỘNG (US07) -->
+                            <div id="qr-code-box" class="p-3 bg-light rounded text-center mb-3 d-none">
+                                <p class="small font-weight-bold mb-1" id="qr-title">Quét mã VietQR để thanh toán</p>
+                                <img id="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=DemoVietQR" class="img-fluid border rounded p-1 bg-white mb-2" style="max-width: 140px;" alt="QR Code">
+                                <p class="small text-muted mb-0">Nội dung CK: <strong class="text-danger">THANHTOAN KTX</strong></p>
+                            </div>
+
+                            <!-- FORM THÔNG TIN GIAO HÀNG -->
+                            <form id="checkout-form" novalidate>
+                                <div class="form-group mb-2">
+                                    <label for="checkout-name" class="small font-weight-bold">Họ và tên *</label>
+                                    <input type="text" id="checkout-name" class="form-control form-control-sm" value="Nguyen Van An" required>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label for="checkout-phone" class="small font-weight-bold">Số điện thoại *</label>
+                                    <input type="tel" id="checkout-phone" class="form-control form-control-sm" value="0901234567" required>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="checkout-address" class="small font-weight-bold">Địa chỉ nhận hàng / Phòng KTX *</label>
+                                    <input type="text" id="checkout-address" class="form-control form-control-sm" value="Phòng 402, KTX Khu A" required>
+                                </div>
+                                <button type="submit" class="btn btn-danger btn-block font-weight-bold py-2">
+                                    <i class="fas fa-check-circle mr-1"></i> Xác Nhận Đặt Hàng & Trừ Quỹ (US05)
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TRANG 4: TÍNH NGÂN SÁCH (US01 & US05) ================= -->
+            <div id="page-calculator" class="page-view d-none">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <section class="card p-4 shadow-sm border-0 mb-4">
+                            <h2 class="h3 font-weight-bold mb-3"><i class="fas fa-calculator text-primary mr-2"></i>US01: Thiết Lập Ngân Sách Ăn Uống</h2>
+                            <p class="text-muted small">Nhập số tiền bạn còn lại trong tháng. Hệ thống sẽ tự chia hạn mức 1 bữa ăn và đề xuất menu phù hợp.</p>
+
+                            <form id="calc-form">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="monthly-budget"><strong>Ngân sách ăn uống còn lại tháng này (VNĐ):</strong></label>
+                                        <input type="number" id="monthly-budget" class="form-control" value="3000000" min="100000" step="50000">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="days-count"><strong>Số ngày còn lại trong tháng:</strong></label>
+                                        <input type="number" id="days-count" class="form-control" value="30" min="1" max="31">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary font-weight-bold">
+                                    <i class="fas fa-save mr-1"></i> Cập Nhật Hạn Mức & Đề Xuất Thực Đơn
+                                </button>
+                            </form>
+
+                            <div id="calc-result" class="mt-4 p-3 bg-light rounded border">
+                                <h4 class="h5 font-weight-bold text-success mb-2">Hạn Mức Chi Tiêu Của Bạn:</h4>
+                                <ul class="mb-3">
+                                    <li>Ngân sách dành cho ăn uống/ngày: <strong id="res-daily" class="text-danger">50.000 VNĐ</strong></li>
+                                    <li>Hạn mức khuyến nghị/bữa ăn (3 bữa/ngày): <strong id="res-meal" class="text-dark font-weight-bold">16.666 VNĐ</strong></li>
+                                </ul>
+
+                                <button class="btn btn-success font-weight-bold js-nav-link" data-target="#page-menu" id="btn-go-suggested-menu">
+                                    <i class="fas fa-utensils mr-1"></i> Xem Thực Đơn Phù Hợp Hạn Mức
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TRANG 5: THEO DÕI ĐƠN HÀNG REALTIME (US08) ================= -->
+            <div id="page-tracking" class="page-view d-none">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="card p-4 shadow-sm border-0">
+                            <h2 class="h3 font-weight-bold mb-3"><i class="fas fa-route text-success mr-2"></i>US08: Theo Dõi Đơn Hàng Realtime</h2>
+                            <p class="text-muted small">Cập nhật trạng thái chế biến và vị trí giao hàng theo thời gian thực.</p>
+
+                            <div class="alert alert-light border d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <span class="small text-muted d-block">Mã đơn hàng:</span>
+                                    <strong class="text-danger" id="track-order-id">#DH-88921</strong>
+                                </div>
+                                <div class="text-right">
+                                    <span class="small text-muted d-block">Dự kiến giao:</span>
+                                    <strong class="text-dark">15 - 20 phút</strong>
+                                </div>
+                            </div>
+
+                            <!-- TIMELINE TIẾN TRÌNH ĐƠN HÀNG -->
+                            <div class="tracking-timeline my-3">
+                                <div class="track-step active" id="step-1">
+                                    <div class="track-icon"><i class="fas fa-check"></i></div>
+                                    <div class="track-title">Đã nhận đơn & Đang chế biến 🍳</div>
+                                    <div class="small text-muted">Nhà bếp đang chuẩn bị món ăn tươi nóng cho bạn.</div>
+                                </div>
+                                <div class="track-step" id="step-2">
+                                    <div class="track-icon"><i class="fas fa-motorcycle"></i></div>
+                                    <div class="track-title">Tài xế đang giao hàng 🛵</div>
+                                    <div class="small text-muted">Đơn hàng đang trên đường di chuyển tới cổng trường/KTX.</div>
+                                </div>
+                                <div class="track-step" id="step-3">
+                                    <div class="track-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                    <div class="track-title">Đã đến điểm hẹn! 🍱</div>
+                                    <div class="small text-muted">Tài xế đã ở cổng KTX, vui lòng xuống nhận đồ ăn.</div>
+                                </div>
+                            </div>
+
+                            <!-- THÔNG TIN TÀI XẾ (US08) -->
+                            <div class="card p-3 bg-light border-0 mt-3">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary text-white rounded-circle mr-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.2rem;">
+                                            <i class="fas fa-user-ninja"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="h6 font-weight-bold mb-0">Tài xế: Nguyễn Văn Hùng</h4>
+                                            <small class="text-muted">Xe Wave RSX - 59-S2 882.19</small>
+                                        </div>
+                                    </div>
+                                    <a href="tel:0912345678" class="btn btn-outline-success font-weight-bold btn-sm">
+                                        <i class="fas fa-phone-alt mr-1"></i> Gọi 0912.345.678
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-dark text-white pt-4 pb-3 mt-auto">
+        <div class="container text-center text-md-left">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <h5 class="font-weight-bold text-warning">Cơm Tấm Sinh Viên</h5>
+                    <p class="small text-muted mb-0">Tích hợp trọn bộ US01 - US08 đáp ứng đầy đủ yêu cầu bài tập đồ án.</p>
+                </div>
+                <div class="col-md-6 mb-3 text-md-right">
+                    <p class="small mb-1">&copy; 2026 Quán Cơm Tấm Sinh Viên.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast-notification" class="alert alert-success shadow-lg border-0" role="alert">
+        <i class="fas fa-check-circle mr-2"></i><span id="toast-msg">Thông báo...</span>
+    </div>
+
+    <!-- JS LIBRARIES -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+
+    <!-- LOGIC JAVASCRIPT XỬ LÝ TRỌN BỘ US01 - US08 -->
+    <script>
+        // DỮ LIỆU SẢN PHẨM MẪU
+        const rawProductsData = [
+            { id: 1, name: "Cơm Tấm Sườn Bì Chả", category: "com", price: 35000, img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80", desc: "Suất đặc biệt full topping sườn nướng, bì thơm và chả trứng.", featured: true },
+            { id: 2, name: "Cơm Tấm Sườn Nướng", category: "com", price: 30000, img: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=400&q=80", desc: "Sườn cây nướng than hoa thơm lừng ăn kèm dưa góp.", featured: true },
+            { id: 3, name: "Cơm Tấm Trứng Ốp La", category: "com", price: 20000, img: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=400&q=80", desc: "Suất tiết kiệm với 2 quả trứng lòng đào béo ngậy.", featured: false },
+            { id: 4, name: "Bún Thịt Nướng Chả Giò", category: "bun-pho", price: 30000, img: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=400&q=80", desc: "Bún tươi ăn kèm thịt nướng và chả giòn rụm.", featured: true },
+            { id: 5, name: "Bánh Mì Đặc Biệt", category: "banh-mi", price: 20000, img: "https://images.unsplash.com/photo-1626844131082-256783844137?auto=format&fit=crop&w=400&q=80", desc: "Bánh mì kẹp paté nhà làm, chả lụa và thịt nguội.", featured: false },
+            { id: 6, name: "Bánh Mì Ốp La Pa-tê", category: "banh-mi", price: 15000, img: "https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=400&q=80", desc: "Món ăn sáng nhanh gọn cho sinh viên.", featured: false },
+            { id: 7, name: "Trà Đá Mát Lạnh", category: "nuoc", price: 3000, img: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400&q=80", desc: "Trà bắc thơm đậm đà.", featured: false },
+            { id: 8, name: "Nước Sâm Bông Cúc", category: "nuoc", price: 10000, img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80", desc: "Thanh nhiệt giải độc cơ thể.", featured: false }
+        ];
+
+        // STATE QUẢN LÝ (LOCALSTORAGE)
+        let cart = JSON.parse(localStorage.getItem('student_cart')) || [];
+        let monthlyBudget = parseFloat(localStorage.getItem('student_monthly_budget')) || 3000000;
+        let mealLimit = parseFloat(localStorage.getItem('student_meal_limit')) || 30000;
+        let isTodayMenuOnly = false;
+
+        function saveCart() {
+            localStorage.setItem('student_cart', JSON.stringify(cart));
+            updateCartBadge();
+        }
+
+        function saveBudgetState() {
+            localStorage.setItem('student_monthly_budget', monthlyBudget);
+            localStorage.setItem('student_meal_limit', mealLimit);
+            updateGlobalBudgetHeader();
+        }
+
+        function updateGlobalBudgetHeader() {
+            $('#global-monthly-budget').text(monthlyBudget.toLocaleString('vi-VN') + ' VNĐ');
+            $('#global-meal-limit').text(mealLimit.toLocaleString('vi-VN') + ' VNĐ');
+            $('#btn-limit-text').text('≤ ' + Math.floor(mealLimit/1000) + 'k');
+        }
+
+        function updateCartBadge() {
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            $('#cart-count').text(totalQty);
+        }
+
+        function showToast(msg) {
+            $('#toast-msg').text(msg);
+            $('#toast-notification').stop(true, true).fadeIn(300).delay(2200).fadeOut(400);
+        }
+
+        function switchPage(targetId, title) {
+            $('.page-view').addClass('d-none');
+            $(targetId).removeClass('d-none');
+            $('.navbar-nav .nav-item').removeClass('active');
+            $(`.js-nav-link[data-target="${targetId}"]`).parent().addClass('active');
+            $('#breadcrumb-current').text(title);
+            $('.navbar-collapse').collapse('hide');
+            window.scrollTo(0, 0);
+
+            if (targetId === '#page-cart') renderCartTable();
+            if (targetId === '#page-tracking') startOrderSimulation();
+        }
+
+        // US01 & US05: RENDER SẢN PHẨM VỚI CẢNH BÁO HẠN MỨC
+        function createProductCard(p) {
+            const isOverLimit = p.price > mealLimit;
+            const statusTag = isOverLimit 
+                ? `<span class="warning-tag"><i class="fas fa-exclamation-triangle mr-1"></i>Vượt hạn mức (${p.price.toLocaleString('vi-VN')}đ)</span>`
+                : `<span class="success-tag"><i class="fas fa-check mr-1"></i>Chuẩn ngân sách</span>`;
+
+            return `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <article class="card card-product">
+                        <img src="${p.img}" class="card-img-top" alt="${p.name}">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="price-badge">${p.price.toLocaleString('vi-VN')} đ</span>
+                                ${statusTag}
+                            </div>
+                            <h3 class="h6 font-weight-bold card-title">${p.name}</h3>
+                            <p class="card-text small text-muted flex-grow-1">${p.desc}</p>
+                            <button class="btn btn-danger btn-sm btn-block font-weight-bold btn-add-cart mt-2" data-id="${p.id}">
+                                <i class="fas fa-cart-plus mr-1"></i>Đặt Món
+                            </button>
+                        </div>
+                    </article>
+                </div>
+            `;
+        }
+
+        function renderProducts(products) {
+            const container = $('#product-list');
+            container.empty();
+            let filtered = products;
+
+            if (isTodayMenuOnly) {
+                filtered = products.filter(p => p.price <= mealLimit);
+            }
+
+            if (filtered.length === 0) {
+                $('#no-results').removeClass('d-none');
+            } else {
+                $('#no-results').addClass('d-none');
+                filtered.forEach(p => container.append(createProductCard(p)));
+            }
+        }
+
+        function addToCart(productId) {
+            const product = rawProductsData.find(p => p.id === productId);
+            if (!product) return;
+
+            const item = cart.find(i => i.id === productId);
+            if (item) item.qty += 1;
+            else cart.push({ id: product.id, name: product.name, price: product.price, img: product.img, qty: 1 });
+
+            saveCart();
+            showToast(`Đã thêm "${product.name}" vào giỏ hàng!`);
+        }
+
+        // US05, US06, US07: RENDER GIỎ HÀNG & TÍNH TOÁN NÂNG CAO
+        function renderCartTable() {
+            const tbody = $('#cart-table-body');
+            tbody.empty();
+
+            if (cart.length === 0) {
+                $('#empty-cart-msg').removeClass('d-none');
+                $('#cart-content').addClass('d-none');
+                return;
+            }
+
+            $('#empty-cart-msg').addClass('d-none');
+            $('#cart-content').removeClass('d-none');
+
+            let subtotal = 0;
+            cart.forEach(item => {
+                const itemTotal = item.price * item.qty;
+                subtotal += itemTotal;
+                tbody.append(`
+                    <tr>
+                        <td class="small font-weight-bold">${item.name}</td>
+                        <td class="small">${item.price.toLocaleString('vi-VN')}đ</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-secondary btn-qty-minus" data-id="${item.id}">-</button>
+                                <button class="btn btn-light disabled font-weight-bold">${item.qty}</button>
+                                <button class="btn btn-outline-secondary btn-qty-plus" data-id="${item.id}">+</button>
+                            </div>
+                        </td>
+                        <td class="small font-weight-bold">${itemTotal.toLocaleString('vi-VN')}đ</td>
+                        <td><button class="btn btn-link text-danger btn-sm btn-delete-item" data-id="${item.id}"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                `);
+            });
+
+            const shipFee = 15000;
+            const grandTotal = subtotal + shipFee;
+
+            $('#cart-subtotal').text(subtotal.toLocaleString('vi-VN') + ' VNĐ');
+            $('#cart-total').text(grandTotal.toLocaleString('vi-VN') + ' VNĐ');
+
+            // US05: Hiển thị cảnh báo nếu Tổng Đơn > Hạn Mức Bữa Ăn
+            if (grandTotal > mealLimit) {
+                $('#alert-cart-total').text(grandTotal.toLocaleString('vi-VN') + 'đ');
+                $('#alert-meal-limit').text(mealLimit.toLocaleString('vi-VN') + 'đ');
+                $('#cart-budget-alert').removeClass('d-none');
+            } else {
+                $('#cart-budget-alert').addClass('d-none');
+            }
+
+            // US06: Tính toán chia tiền nhóm đặt chung
+            calculateGroupSplit(grandTotal, shipFee);
+        }
+
+        // US06: TÍNH CHIA TIỀN SHIP VÀ BILL
+        function calculateGroupSplit(grandTotal, shipFee) {
+            const count = parseInt($('#group-people-count').val()) || 1;
+            const shipPerPerson = Math.round(shipFee / count);
+            const totalPerPerson = Math.round(grandTotal / count);
+
+            $('#ship-per-person').text(shipPerPerson.toLocaleString('vi-VN') + ' đ');
+            $('#total-per-person').text(totalPerPerson.toLocaleString('vi-VN') + ' VNĐ');
+        }
+
+        // US08: GIẢ LẬP TRẠNG THÁI ĐƠN HÀNG REALTIME
+        function startOrderSimulation() {
+            $('#step-1, #step-2, #step-3').removeClass('active');
+            $('#step-1').addClass('active');
+
+            setTimeout(() => {
+                $('#step-2').addClass('active');
+                showToast('🛵 Tài xế đã nhận đơn và đang di chuyển!');
+            }, 4000);
+
+            setTimeout(() => {
+                $('#step-3').addClass('active');
+                showToast('🍱 Tài xế đã đến cổng KTX! Vui lòng nhận hàng.');
+            }, 9000);
+        }
+
+        // INITIALIZATION & EVENT HANDLERS
+        $(document).ready(function() {
+            saveBudgetState();
+            updateCartBadge();
+
+            // Render Featured Products trên Trang chủ
+            const featuredList = rawProductsData.filter(p => p.featured);
+            featuredList.forEach(p => $('#featured-products').append(createProductCard(p)));
+
+            renderProducts(rawProductsData);
+
+            // Chuyển trang SPA
+            $('.js-nav-link').on('click', function(e) {
+                e.preventDefault();
+                const target = $(this).data('target');
+                let title = 'Trang chủ';
+                if (target === '#page-menu') title = 'Thực đơn món ăn';
+                if (target === '#page-cart') title = 'Giỏ hàng & Thanh toán';
+                if (target === '#page-calculator') title = 'Tính ngân sách';
+                if (target === '#page-tracking') title = 'Theo dõi đơn hàng';
+                switchPage(target, title);
+            });
+
+            // US01: Bật/Tắt Lọc Thực đơn hôm nay theo Hạn Mức
+            $('#btn-filter-today-menu').on('click', function() {
+                isTodayMenuOnly = !isTodayMenuOnly;
+                if (isTodayMenuOnly) {
+                    $(this).removeClass('btn-outline-success').addClass('btn-success text-white');
+                    showToast(`Đã bật chế độ gợi ý món ≤ ${mealLimit.toLocaleString('vi-VN')}đ`);
+                } else {
+                    $(this).removeClass('btn-success text-white').addClass('btn-outline-success');
+                }
+                renderProducts(rawProductsData);
+            });
+
+            // Thêm vào giỏ hàng
+            $(document).on('click', '.btn-add-cart', function() {
+                const id = $(this).data('id');
+                addToCart(id);
+            });
+
+            // Tăng/Giảm/Xóa Giỏ hàng
+            $(document).on('click', '.btn-qty-plus', function() {
+                const id = $(this).data('id');
+                const item = cart.find(i => i.id === id);
+                if (item) { item.qty += 1; saveCart(); renderCartTable(); }
+            });
+
+            $(document).on('click', '.btn-qty-minus', function() {
+                const id = $(this).data('id');
+                const item = cart.find(i => i.id === id);
+                if (item) {
+                    item.qty -= 1;
+                    if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+                    saveCart();
+                    renderCartTable();
+                }
+            });
+
+            $(document).on('click', '.btn-delete-item', function() {
+                const id = $(this).data('id');
+                cart = cart.filter(i => i.id !== id);
+                saveCart();
+                renderCartTable();
+            });
+
+            // US06: Đổi số lượng người gom đơn
+            $('#group-people-count').on('input change', function() {
+                renderCartTable();
+            });
+
+            $('#btn-share-link').on('click', function() {
+                showToast('🔗 Đã copy link gom đơn! Hãy gửi link vào box chat nhóm của bạn.');
+            });
+
+            // US07: Đổi phương thức thanh toán hiển thị QR Code động
+            $('input[name="paymentMethod"]').on('change', function() {
+                const val = $(this).val();
+                if (val === 'VietQR') {
+                    $('#qr-title').text('Quét mã VietQR để thanh toán tự động');
+                    $('#qr-img').attr('src', 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VietQR_Demo_ComTam');
+                    $('#qr-code-box').removeClass('d-none');
+                } else if (val === 'MoMo') {
+                    $('#qr-title').text('Quét mã Ví MoMo để thanh toán');
+                    $('#qr-img').attr('src', 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=MoMo_Demo_ComTam');
+                    $('#qr-code-box').removeClass('d-none');
+                } else {
+                    $('#qr-code-box').addClass('d-none');
+                }
+            });
+
+            // US05 & US07: THỰC HIỆN ĐẶT HÀNG & TRỪ QUỸ TỰ ĐỘNG
+            $('#checkout-form').on('submit', function(e) {
+                e.preventDefault();
+                if (cart.length === 0) return;
+
+                const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+                const grandTotal = subtotal + 15000;
+
+                // US05: Tự động trừ quỹ ngân sách còn lại
+                monthlyBudget -= grandTotal;
+                if (monthlyBudget < 0) monthlyBudget = 0;
+                
+                // Cập nhật lại hạn mức bữa ăn dựa trên ngân sách còn lại
+                mealLimit = Math.floor((monthlyBudget / 30) / 3);
+                saveBudgetState();
+
+                showToast(`🎉 Đặt hàng thành công! Đã trừ ${grandTotal.toLocaleString('vi-VN')}đ vào quỹ ăn tháng.`);
+
+                // Clear giỏ hàng và chuyển sang US08 Theo Dõi Đơn Hàng Realtime
+                cart = [];
+                saveCart();
+                switchPage('#page-tracking', 'Theo dõi đơn hàng');
+            });
+
+            // US01: TÍNH NGÂN SÁCH TRONG CÔNG CỤ TÍNH
+            $('#calc-form').on('submit', function(e) {
+                e.preventDefault();
+                const budget = parseFloat($('#monthly-budget').val()) || 0;
+                const days = parseInt($('#days-count').val()) || 30;
+
+                monthlyBudget = budget;
+                mealLimit = Math.floor((budget / days) / 3);
+
+                saveBudgetState();
+
+                $('#res-daily').text(Math.floor(budget / days).toLocaleString('vi-VN') + ' VNĐ');
+                $('#res-meal').text(mealLimit.toLocaleString('vi-VN') + ' VNĐ');
+
+                showToast('Đã lưu hạn mức mới! Hệ thống đã cập nhật gợi ý món ăn.');
+            });
+        });
+    </script>
+</body>
+</html>

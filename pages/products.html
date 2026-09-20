@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thực Đơn & Lọc Món - FINSTART Food</title>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <h1>FINSTART Food</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Trang chủ</a></li>
+                <li><a href="products.html" class="active" aria-current="page">Thực đơn</a></li>
+                <li><a href="calculator.html">Tính ngân sách</a></li>
+                <li><a href="contact.html">Đặt hàng</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Thực Đơn Món Ăn Sinh Viên</h2>
+
+        <!-- Khối Thông Báo Hạn Mức Tiền Ăn (Nối dữ liệu từ US01) -->
+        <section id="budget-notice-box">
+            <p><strong>Hạn mức ăn uống hiện tại của bạn:</strong> <span id="user-budget-display">Chưa lập ngân sách</span> - <a href="calculator.html">Cài đặt ngay</a></p>
+        </section>
+
+        <!-- Form Tìm Kiếm & Bộ Lọc Món Ăn -->
+        <section class="filter-section">
+            <form action="#" method="GET" id="filter-form">
+                <fieldset>
+                    <legend>Bộ Lọc Món Ăn Thông Minh</legend>
+                    
+                    <label for="search-input">Tìm món ăn:</label>
+                    <input type="text" id="search-input" name="keyword" placeholder="Nhập tên món ăn...">
+
+                    <label for="category-select">Danh mục:</label>
+                    <select id="category-select" name="category">
+                        <option value="all">Tất cả danh mục</option>
+                        <option value="com">Cơm Sinh Viên</option>
+                        <option value="bun">Bún / Phở / Mì</option>
+                        <option value="do-uong">Trà Sữa / Đồ Uống</option>
+                        <option value="combo">Combo Tiết Kiệm</option>
+                    </select>
+
+                    <label for="sort-select">Sắp xếp giá:</label>
+                    <select id="sort-select" name="sort">
+                        <option value="default">Mặc định</option>
+                        <option value="asc">Giá tăng dần</option>
+                        <option value="desc">Giá giảm dần</option>
+                    </select>
+
+                    <button type="submit">Áp dụng Lọc</button>
+                    <button type="button" id="btn-filter-budget">Chỉ hiển thị món trong tầm giá</button>
+                </fieldset>
+            </form>
+        </section>
+
+        <!-- Lưới Danh Sách Sản Phẩm -->
+        <section class="product-list" id="products-container">
+            <article class="product-card">
+                <img src="../assets/images/com-tam.jpg" alt="Cơm tấm sườn bì chả" width="200" height="150">
+                <h3>Cơm Tấm Sườn Bì Chả</h3>
+                <p>Danh mục: Cơm Sinh Viên</p>
+                <p>Giá: <strong>30.000 VNĐ</strong></p>
+                <a href="product_detail.html">Chi tiết món</a>
+            </article>
+
+            <article class="product-card">
+                <img src="../assets/images/bun-tron.jpg" alt="Bún trộn bắp bò" width="200" height="150">
+                <h3>Bún Trộn Bắp Bò</h3>
+                <p>Danh mục: Bún / Phở / Mì</p>
+                <p>Giá: <strong>35.000 VNĐ</strong></p>
+                <a href="product_detail.html">Chi tiết món</a>
+            </article>
+
+            <article class="product-card">
+                <img src="../assets/images/tra-sua.jpg" alt="Trà sữa trân châu" width="200" height="150">
+                <h3>Trà Sữa Trân Châu Đen</h3>
+                <p>Danh mục: Trà Sữa / Đồ Uống</p>
+                <p>Giá: <strong>20.000 VNĐ</strong></p>
+                <a href="product_detail.html">Chi tiết món</a>
+            </article>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 FINSTART Food. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

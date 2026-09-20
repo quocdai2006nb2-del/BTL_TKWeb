@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Món Ăn - FINSTART Food</title>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <h1>FINSTART Food</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Trang chủ</a></li>
+                <li><a href="products.html">Thực đơn</a></li>
+                <li><a href="calculator.html">Tính ngân sách</a></li>
+                <li><a href="contact.html">Đặt hàng</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="product-detail">
+            <article>
+                <h2>Cơm Tấm Sườn Bì Chả Tiết Kiệm</h2>
+                <img src="../assets/images/com-tam.jpg" alt="Đĩa cơm tấm sườn bì chả đầy đủ topping" width="400" height="300">
+                
+                <p><strong>Giá cơ bản:</strong> 30.000 VNĐ</p>
+                <p><strong>Mô tả chi tiết:</strong> Suất cơm tấm chuẩn vị gồm sườn nướng đậm đà, bì heo giòn ngậy, chả trứng hấp mềm mịn, dưa góp chua ngọt và canh rau theo ngày. Cung cấp năng lượng trọn vẹn cho buổi học.</p>
+
+                <!-- Form Chọn Tùy Chọn Topping & Số Lượng -->
+                <form action="contact.html" method="GET">
+                    <fieldset>
+                        <legend>Thêm Topping & Số Lượng</legend>
+                        
+                        <p>Topping chọn thêm:</p>
+                        <input type="checkbox" id="top1" name="topping" value="trung-op">
+                        <label for="top1">Trứng ốp la lòng đào (+5.000 VNĐ)</label><br>
+
+                        <input type="checkbox" id="top2" name="topping" value="them-suon">
+                        <label for="top2">Thêm 1 miếng Sườn nướng (+15.000 VNĐ)</label><br>
+
+                        <input type="checkbox" id="top3" name="topping" value="them-cha">
+                        <label for="top3">Thêm 1 miếng Chả trứng (+5.000 VNĐ)</label><br><br>
+
+                        <label for="quantity">Số lượng suất:</label>
+                        <input type="number" id="quantity" name="quantity" min="1" max="20" value="1">
+                    </fieldset>
+                    <br>
+                    <button type="submit">Thêm Vào Đơn Hàng & Đặt Ngay</button>
+                </form>
+            </article>
+        </section>
+
+        <!-- Bảng Dữ Liệu Dinh Dưỡng -->
+        <section class="nutrition-info">
+            <h3>Bảng Thành Phần Dinh Dưỡng Ước Tính</h3>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th scope="col">Thành phần</th>
+                        <th scope="col">Hàm lượng / Suất</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Năng lượng (Calories)</td>
+                        <td>650 kcal</td>
+                    </tr>
+                    <tr>
+                        <td>Protein (Đạm)</td>
+                        <td>28 g</td>
+                    </tr>
+                    <tr>
+                        <td>Carbohydrates (Tinh bột)</td>
+                        <td>75 g</td>
+                    </tr>
+                    <tr>
+                        <td>Fat (Chất béo)</td>
+                        <td>18 g</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 FINSTART Food. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
