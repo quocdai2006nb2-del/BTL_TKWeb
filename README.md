@@ -64,11 +64,11 @@ FINFood là nền tảng Web Front-End được thiết kế riêng cho sinh vi�
 
 | STT | Họ và Tên | Mã Sinh Viên | Vai trò | Phụ trách kỹ thuật chính |
 | :---: | :--- | :---: | :--- | :--- |
-| 1 | [Tên Trưởng Nhóm] | [MSV1] | Product Owner / Lead | Quản lý Git, Deploy, Trang chủ (`index.html`), Design System (`main.css`) |
-| 2 | [Thành viên 2] | [MSV2] | Dev Thực đơn & Data | Trang Thực đơn (`products.html`), Chi tiết món (`product-detail.html`), `products.json`, `main.js` |
-| 3 | [Thành viên 3] | [MSV3] | Dev Đặt hàng & Form | Trang Đặt hàng (`contact.html`), Form Validation, Modal Mã QR (`validation.js`) |
-| 4 | [Thành viên 4] | [MSV4] | Dev Logic Chi Tiêu | Trang Tính ngân sách & Chia ship (`calculator.html`), `localStorage` (`calculator.js`) |
-| 5 | [Thành viên 5] | [MSV5] | UI/UX & Quality Control | Trang Giới thiệu (`about.html`), Wireframe, Báo cáo PDF, `AI_USAGE.md` |
+| 1 | Trịnh Quốc Đại | 27A4043282 | Product Owner / Lead | Quản lý Git, Deploy, Trang chủ (`index.html`), Design System (`main.css`) |
+| 2 | Đoàn Thị Minh Ánh | 27A4043271 | Dev Thực đơn & Data | Trang Thực đơn (`products.html`), Chi tiết món (`product-detail.html`), `products.json`, `main.js` |
+| 3 | Nguyễn Thị Thảo Ly | 27A4043313 | Dev Đặt hàng & Form | Trang Đặt hàng (`contact.html`), Form Validation, Modal Mã QR (`validation.js`) |
+| 4 | Nguyễn Thị Kim Huệ | 27A4043296 | Dev Logic Chi Tiêu | Trang Tính ngân sách & Chia ship (`calculator.html`), `localStorage` (`calculator.js`) |
+| 5 | Nguyễn Quốc Khánh | 27A4043304 | UI/UX & Quality Control | Trang Giới thiệu (`about.html`), Wireframe, Báo cáo PDF, `AI_USAGE.md` |
 
 ---
 
